@@ -1,0 +1,17 @@
+{
+  "name": "flaxbot",
+  "version": "1.0.0",
+  "description": "A cross-chat implementation between discord and telegram using node.",
+  "main": "index.js",
+  "scripts": {
+    "pretest": "powershell scripts/Get-Env-File.ps1 -Env dev",
+    "test": "node index.js"
+  },
+  "keywords": [],
+  "author": "dnzrx",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.2.0"
+  }
+}
