@@ -4,6 +4,8 @@ Param(
 
 $DEV = 'dev'
 $PROD = 'prod'
+$DEFAULT = $DEV
+
 $ADDRESS = '192.168.137.1'
 $PORT = '50001'
 $LINK = 'ftp://' + $ADDRESS + ':' + $PORT + '/'
@@ -16,11 +18,11 @@ $DEV;
 $PROD
 )
 
-function Check-Env([string] $val)
+function Get-EnvValidity([string] $val)
 {
     foreach ($env in $LIST_ENV)
     {
-        if ($val -EQ $env)
+        if ($val -eq $env)
         {
             return 1
         }
@@ -43,21 +45,21 @@ function Write-ColorOutput($ForegroundColor)
     $host.UI.RawUI.ForegroundColor = $fc
 }
 
-
-if (!$Env -OR $Env -EQ '' -OR !(Check-Env($Env)))
+if (!$Env -or ($Env -and !(Get-EnvValidity($Env))))
 {
 
-    if (!(Check-Env($Env)) -AND $Env)
+    if ($Env -and !(Get-EnvValidity($Env)))
     {
         Write-Host '"' -NoNewLine
         Write-Host $Env -ForegroundColor Red -NoNewLine
         Write-Host '" value for argument -Env is invalid'
     }
+
     Write-Host 'Changing -Env value to "' -NoNewLine
-    Write-Host $DEV -NoNewLine -ForegroundColor Green
+    Write-Host $DEFAULT -NoNewLine -ForegroundColor Green
     Write-Host '"'
 
-    $Env = $DEV
+    $Env = $DEFAULT
 
     Write-Host 'Below are the list of the correct values for argument -Env'
     Write-Host "=========================================================="
