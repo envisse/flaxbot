@@ -6,25 +6,36 @@ if (require('./load-env').error) {
     process.exit(1);
 }
 
-const discordbot = new (require('discord.js').Client)();
-const telegrambot = new (require('slimbot'))(process.env.TELEGRAM_BOT_TOKEN);
+const Discord = require('discord.js');
+const SlimBot = require('slimbot');
 
-telegrambot.on('message', message => {
-    telegrambot.sendMessage(message.chat.id, 'Message received');
+const util = require('./util');
+
+const discordBot = new Discord.Client();
+discordBot.login(process.env.DISCORD_BOT_TOKEN);
+
+const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
+let discordChannel;
+
+discordBot.on('ready', () => {
+    discordChannel = discordBot.channels.find(e => e.id === DISCORD_CHANNEL_ID);
 });
 
-telegrambot.startPolling();
+const telegramBot = new SlimBot(process.env.TELEGRAM_BOT_TOKEN);
+const TELEGRAM_GROUP_ID = Number(process.env.TELEGRAM_GROUP_ID);
+telegramBot.startPolling();
 
-discordbot.login(process.env.DISCORD_BOT_TOKEN)
-    .catch(e => {
-        console.error('Failed to login with provided token, contact the owner.');
-        process.exit(1);
-    });
-
-discordbot.on('ready', () => {
-    console.log('Connection established.');
+discordBot.on('message', message => {
+    if (message.member.id !== discordBot.user.id) {
+        telegramBot.sendMessage(TELEGRAM_GROUP_ID, message.content);
+    }
 });
 
-discordbot.on('message', message => {
+telegramBot.on('message', data => {
+
+    if (data.chat.id === TELEGRAM_GROUP_ID) {
+        let message = util.composeDiscordMessage(data);
+        discordChannel.send(message);
+    }
 
 });
