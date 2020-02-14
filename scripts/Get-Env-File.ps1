@@ -77,7 +77,7 @@ $URI = @{
 
 $FILE = @{
     $DEV = $DEV_ENV_FILE_NAME;
-    $PROD = $DEV_ENV_FILE_NAME;
+    $PROD = $PROD_ENV_FILE_NAME;
 }
 
 $url = $URI[$Env]
