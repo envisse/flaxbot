@@ -6,18 +6,25 @@ if (require('./load-env').error) {
     process.exit(1);
 }
 
-const bot = new (require('discord.js').Client)();
+const discordbot = new (require('discord.js').Client)();
+const telegrambot = new (require('slimbot'))(process.env.TELEGRAM_BOT_TOKEN);
 
-bot.login(process.env.DISCORD_BOT_TOKEN)
+telegrambot.on('message', message => {
+    telegrambot.sendMessage(message.chat.id, 'Message received');
+});
+
+telegrambot.startPolling();
+
+discordbot.login(process.env.DISCORD_BOT_TOKEN)
     .catch(e => {
         console.error('Failed to login with provided token, contact the owner.');
         process.exit(1);
     });
 
-bot.on('ready', () => {
+discordbot.on('ready', () => {
     console.log('Connection established.');
 });
 
-bot.on('message', message => {
-    console.log('Incoming message', message);
+discordbot.on('message', message => {
+
 });
