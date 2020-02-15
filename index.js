@@ -12,7 +12,6 @@ const SlimBot = require('slimbot');
 const util = require('./util');
 
 const discordBot = new Discord.Client();
-discordBot.login(process.env.DISCORD_BOT_TOKEN);
 
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 let discordChannel;
@@ -25,17 +24,23 @@ const telegramBot = new SlimBot(process.env.TELEGRAM_BOT_TOKEN);
 const TELEGRAM_GROUP_ID = Number(process.env.TELEGRAM_GROUP_ID);
 telegramBot.startPolling();
 
-discordBot.on('message', message => {
-    if (message.member.id !== discordBot.user.id) {
-        telegramBot.sendMessage(TELEGRAM_GROUP_ID, message.content);
-    }
-});
+const frog = new (require('./benjosh'))(discordBot, telegramBot);
 
-telegramBot.on('message', data => {
+if ((process.env.NODE_ENV || 'dev') != 'dev') {
+    discordBot.on('message', message => {
+        if (message.member.id !== discordBot.user.id) {
+            telegramBot.sendMessage(TELEGRAM_GROUP_ID, message.content);
+        }
+    });
 
-    if (data.chat.id === TELEGRAM_GROUP_ID) {
-        let message = util.composeDiscordMessage(data);
-        discordChannel.send(message);
-    }
+    telegramBot.on('message', data => {
 
-});
+        if (data.chat.id === TELEGRAM_GROUP_ID) {
+            let message = util.composeDiscordMessage(data);
+            discordChannel.send(message);
+        }
+
+    });
+}
+
+discordBot.login(process.env.DISCORD_BOT_TOKEN);
