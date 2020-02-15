@@ -24,7 +24,7 @@ const telegramBot = new SlimBot(process.env.TELEGRAM_BOT_TOKEN);
 const TELEGRAM_GROUP_ID = Number(process.env.TELEGRAM_GROUP_ID);
 telegramBot.startPolling();
 
-const frog = new (require('./benjosh'))(discordBot, telegramBot);
+new (require('./benjosh'))(discordBot, telegramBot);
 
 if ((process.env.NODE_ENV || 'dev') != 'dev') {
     discordBot.on('message', message => {
