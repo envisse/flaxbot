@@ -4,6 +4,7 @@ const util = require('./util');
 
 class Benjo {
     constructor(discordClient, telegramClient) {
+        console.log(`Starting... ENV = ${process.env.NODE_ENV || 'dev'}`);
         this._setupDiscord(discordClient);
         this._setupTelegram(telegramClient);
 
@@ -19,7 +20,7 @@ class Benjo {
         this.commands = [
             {
                 'name': 'Ping',
-                'commands': ['ping'],
+                'aliases': ['ping'],
                 'help': 'Ping server for debugging purposes',
                 'category': 'utility',
 
@@ -35,7 +36,7 @@ class Benjo {
             },
             {
                 'name': 'Help',
-                'commands': ['help'],
+                'aliases': ['help'],
                 'help': 'An introduction to the bot, including list of commands, and detailed commands help',
                 'category': 'utility',
 
@@ -43,22 +44,7 @@ class Benjo {
                 'response': {
                     'discord': (message, result) => {
                         let embed = new Discord.RichEmbed({
-                            'title': `${message.author.username}'s gambling game`,
-                            'color': result[0] > result[1] ? Number('0x28a745') : Number('0xdc3545'),
-                            'description': result[0] > result[1] ? 'You won' : 'You lost', 
-                            'fields': [{
-                                'name': message.author.username, 
-                                'value': `Rolled \`${result[0]}\``,
-                                'inline': true,
-                            }, {
-                                'name': 'FLAX', 
-                                'value': `Rolled \`${result[1]}\``,
-                                'inline': true,
-                            }],
-                            'footer': {
-                                'text': 'To win, you must roll higher than me.',
-                                'icon_url': '',
-                            },
+                            'title': 'FLAX Help',
                         });
     
                         this.discord.send(message.channel.id, embed);
@@ -67,18 +53,23 @@ class Benjo {
             },
             {
                 'name': 'Change Prefix',
-                'commands': ['pre', 'prefix', 'pf'],
+                'aliases': ['pre', 'prefix', 'pf'],
                 'help': 'Changes bot call prefix',
                 'category': 'utility',
                 'elevated': true,
 
                 'process': (sender, command, content) => {
-                    this.prefix = content.toLowerCase().trim() + ' ';
+                    if (content.trim().length <= 0) {
+
+                    }
+                    else {
+                        this.prefix = content.toLowerCase().trim() + ' ';
+                    }
                 }
             },
             {
                 'name': 'Gambling',
-                'commands': ['bet', 'gamble'],
+                'aliases': ['bet', 'gamble'],
                 'help': 'Do gambling (beta)',
                 'category': 'game',
 
@@ -142,7 +133,7 @@ class Benjo {
     }
 
     _setupTelegram(client) {
-        telegramBot.on('message', m => this.parseTelegram(m));
+        client.on('message', m => this.parseTelegram(m));
 
         this.telegram = { //TODO: verify that Telegram API abstraction works as intended
             'reply': (message, text) => {
@@ -163,7 +154,7 @@ class Benjo {
 
         let result = this.parse(sender, content, admin);
 
-        if ('response' in result[0] && 'telegram' in result[0].response) {
+        if (result && 'response' in result[0] && 'telegram' in result[0].response) {
             result[0].response.telegram(message, result[1]);
         }
     }
@@ -178,7 +169,7 @@ class Benjo {
 
         let result = this.parse(sender, content, admin);
 
-        if ('response' in result[0] && 'discord' in result[0].response) {
+        if (result && 'response' in result[0] && 'discord' in result[0].response) {
             result[0].response.discord(message, result[1]);
         }
     }
@@ -191,7 +182,7 @@ class Benjo {
         for (let _c of this.commands) {
             if ('elevated' in _c && _c.elevated && !admin) continue;
 
-            if (_c.commands.indexOf(command) > -1) {
+            if (_c.aliases.indexOf(command) > -1) {
                 content = content.substr(command.length + this.separator.length);
                 return [_c, _c.process(sender, command, content)];
             }

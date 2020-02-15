@@ -4,7 +4,7 @@
   "description": "A cross-chat implementation between discord and telegram using node.",
   "main": "index.js",
   "scripts": {
-    "pretest": "powershell scripts/Get-Env-File.ps1 -Env dev",
+    "pretestx": "powershell scripts/Get-Env-File.ps1 -Env dev",
     "test": "node index.js"
   },
   "keywords": [],
